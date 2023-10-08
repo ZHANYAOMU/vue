@@ -4,7 +4,9 @@
       <el-row>
         <el-col :span="23"
           ><div class="grid-content bg-purple-dark divCenter">
-            <p style="font-size: 20px; margin-left: 70px;">Topic Management System</p>
+            <p style="font-size: 20px; margin-left: 70px">
+              Topic Management System
+            </p>
           </div></el-col
         >
         <el-col :span="1" @click.native="isLogout"
@@ -71,15 +73,28 @@
         </el-col>
       </el-row>
     </div>
-    <div style="margin-top: 50px;">
+    <div style="margin-top: 25px; display: flex; align-items: center; justify-content: center;">
+      <el-form :inline="true" class="demo-form-inline">
+        <el-form-item>
+          <el-input v-model="mainTopic" placeholder="主题搜索"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" plain @click="searchTopic">查询</el-button>
+          <el-button type="primary" plain @click="showAddDialog">新增</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+    <div style="">
       <el-table
         :data="
           tableData.filter(
             (data) =>
-              !search || data.name.toLowerCase().includes(search.toLowerCase())
+              !search ||
+              data.topic.toLowerCase().includes(search.toLowerCase()) ||
+              data.description.toLowerCase().includes(search.toLowerCase())
           )
         "
-        style="width: 80%; margin: 0 auto;"
+        style="width: 80%; margin: 0 auto"
         max-height="100%"
         border
       >
@@ -96,8 +111,10 @@
         </el-table-column>
         <el-table-column label="权重" prop="weight" align="center" width="50px">
         </el-table-column>
-        <el-table-column align="center"  width="150px">
-          <template slot="header" slot-scope="{}"> 操作 </template>
+        <el-table-column align="center" width="150px">
+          <template slot="header" slot-scope="{}">
+            <el-input v-model="search" size="mini" placeholder="搜索当前页" />
+          </template>
           <template slot-scope="scope">
             <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
               >Edit</el-button
@@ -112,18 +129,24 @@
         </el-table-column>
       </el-table>
     </div>
-    <div style="margin-top: 20px; display: flex; justify-content: center; align-items: center;">
+    <div
+      style="
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      "
+    >
       <el-pagination
         background
-        layout="prev, pager, next"
+        layout="prev, pager, next, sizes"
         :total="totalCount"
         :page-size="pageSize"
-        :page-sizes="[5, 10]"
+        :page-sizes="[5, 10, 20, 50, 100]"
         :current-page="pageCount"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       ></el-pagination>
-      <el-button type="primary" plain @click="showAddDialog">新增</el-button>
     </div>
     <el-dialog title="编辑主题" :visible.sync="dialogFormVisible">
       <el-form :model="topicForm">
@@ -131,7 +154,10 @@
           <el-input v-model="topicForm.topic" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="主题描述" :label-width="formLabelWidth">
-          <el-input v-model="topicForm.description" autocomplete="off"></el-input>
+          <el-input
+            v-model="topicForm.description"
+            autocomplete="off"
+          ></el-input>
         </el-form-item>
         <el-form-item label="权重" :label-width="formLabelWidth">
           <el-select v-model="topicForm.weight" placeholder="请选择权重值">
@@ -145,9 +171,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleSave"
-          >确 定</el-button
-        >
+        <el-button type="primary" @click="handleSave">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -157,7 +181,10 @@
           <el-input v-model="topicForm.topic" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="主题描述" :label-width="formLabelWidth">
-          <el-input v-model="topicForm.description" autocomplete="off"></el-input>
+          <el-input
+            v-model="topicForm.description"
+            autocomplete="off"
+          ></el-input>
         </el-form-item>
         <el-form-item label="权重" :label-width="formLabelWidth">
           <el-select v-model="topicForm.weight" placeholder="请选择权重值">
@@ -171,12 +198,9 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogAddTopicVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleAdd"
-          >确 定</el-button
-        >
+        <el-button type="primary" @click="handleAdd">确 定</el-button>
       </div>
     </el-dialog>
-
   </div>
 </template>
 
@@ -191,6 +215,7 @@ export default {
       totalCount: 120,
       tableData: [],
       search: "",
+      mainTopic: "",
 
       dialogFormVisible: false,
       dialogAddTopicVisible: false,
@@ -198,12 +223,16 @@ export default {
         topicId: 0,
         topic: "",
         description: "",
-        weight: 1
+        weight: 1,
       },
-      formLabelWidth: '120px'
+      formLabelWidth: "120px",
     };
   },
   methods: {
+    searchTopic() {
+      this.pageCount = 1;
+      this.queryTopic(this.pageCount, this.pageSize);
+    },
     handleEdit(index, row) {
       this.dialogFormVisible = true;
       this.topicForm.topicId = row.topicId;
@@ -214,45 +243,13 @@ export default {
     handleSave() {
       this.dialogFormVisible = false;
       let that = this;
-      this.$http.put("local/users/saveTopic", {
-        userId: localStorage.getItem("userId"),
-        topicId: this.topicForm.topicId,
-        topic: this.topicForm.topic,
-        description: this.topicForm.description,
-        weight: this.topicForm.weight
-      })
-      .then(function (response) {
-        var res = response.data;
-        if (res.code == 20000) {
-          that.$message({
-            message: res.msg,
-            type: "success",
-          });
-          that.queryTopic(that.pageCount, that.pageSize);
-        } else {
-          that.$message({
-            message: res.msg,
-            type: "error",
-          });
-        }
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    },
-    handleDelete(index, row) {
-      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        let that = this;
-        this.$http.delete("local/users/deleteTopic", 
-        {
-          data: {
-            userId: localStorage.getItem("userId"),
-            topicId: row.topicId,
-          }
+      this.$http
+        .put("local/users/saveTopic", {
+          userId: localStorage.getItem("userId"),
+          topicId: this.topicForm.topicId,
+          topic: this.topicForm.topic,
+          description: this.topicForm.description,
+          weight: this.topicForm.weight,
         })
         .then(function (response) {
           var res = response.data;
@@ -272,12 +269,47 @@ export default {
         .catch(function (error) {
           console.log(error);
         });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        });          
-      }); 
+    },
+    handleDelete(index, row) {
+      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          let that = this;
+          this.$http
+            .delete("local/users/deleteTopic", {
+              data: {
+                userId: localStorage.getItem("userId"),
+                topicId: row.topicId,
+              },
+            })
+            .then(function (response) {
+              var res = response.data;
+              if (res.code == 20000) {
+                that.$message({
+                  message: res.msg,
+                  type: "success",
+                });
+                that.queryTopic(that.pageCount, that.pageSize);
+              } else {
+                that.$message({
+                  message: res.msg,
+                  type: "error",
+                });
+              }
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
     },
     showAddDialog() {
       this.dialogAddTopicVisible = true;
@@ -286,31 +318,32 @@ export default {
     handleAdd() {
       this.dialogAddTopicVisible = false;
       let that = this;
-      this.$http.post("local/users/addTopic", {
-        userId: localStorage.getItem("userId"),
-        topicId: this.topicForm.topicId,
-        topic: this.topicForm.topic,
-        description: this.topicForm.description,
-        weight: this.topicForm.weight
-      })
-      .then(function (response) {
-        var res = response.data;
-        if (res.code == 20000) {
-          that.$message({
-            message: res.msg,
-            type: "success",
-          });
-          that.queryTopic(that.pageCount, that.pageSize);
-        } else {
-          that.$message({
-            message: res.msg,
-            type: "error",
-          });
-        }
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+      this.$http
+        .post("local/users/addTopic", {
+          userId: localStorage.getItem("userId"),
+          topicId: this.topicForm.topicId,
+          topic: this.topicForm.topic,
+          description: this.topicForm.description,
+          weight: this.topicForm.weight,
+        })
+        .then(function (response) {
+          var res = response.data;
+          if (res.code == 20000) {
+            that.$message({
+              message: res.msg,
+              type: "success",
+            });
+            that.queryTopic(that.pageCount, that.pageSize);
+          } else {
+            that.$message({
+              message: res.msg,
+              type: "error",
+            });
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
     },
     handleSizeChange(val) {
       this.pageCount = 1;
@@ -338,10 +371,12 @@ export default {
     },
     queryTopic(pageCount, pageSize) {
       var userId = localStorage.getItem("userId");
+      var topic = this.mainTopic;
       let that = this;
       this.$http
         .post("local/users/queryTopic", {
           userId: userId,
+          topic: topic,
           pageCount: pageCount,
           pageSize: pageSize,
         })
@@ -442,11 +477,11 @@ export default {
   background-color: #f9fafc;
 }
 /* 隐藏页面滚动条 */
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   width: 0 !important;
 }
 ::-webkit-scrollbar {
   width: 0 !important;
   height: 0;
-}
+} */
 </style>

@@ -13,7 +13,7 @@ module.exports = defineConfig({
         }  
       },
       '/local': { // 这里是你要代理的API路径  
-        target: 'http://118.25.147.174:8080', // 这里是后端服务器的地址  
+        target: 'http://localhost:8080', // 这里是后端服务器的地址  
         changeOrigin: true, // 开启代理服务器，将主机头重写为target指定的地址  
         pathRewrite: {  
           '^/local': '' // 如果你的API路径不是以/api开头，则需要修改这里的正则表达式  
