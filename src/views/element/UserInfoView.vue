@@ -4,25 +4,33 @@
       <el-row>
         <el-col :span="23"
           ><div class="grid-content bg-purple-dark divCenter">
-            <p style="font-size: 20px; margin-left: 70px;">Topic Management System</p>
+            <p style="font-size: 20px; margin-left: 70px">😝🙊👿🔥🌵🍄🍉😚😁😢🐨🐵🐒🎉📹🗼🗻🗾🏡♍️❗️🎀💚💞👘💘🐱🐦🐥🐑🐝🌎🌍🌘🌏🌎🌳🌒🏆🍔🏄🍖🍣🍎🍉🍑🌽</p>
           </div></el-col
         >
-        <el-col :span="1" @click.native="isLogout"
-          ><div class="grid-content bg-purple-light divCenter">
-            <i class="el-icon-user-solid" style="font-size: 30px"></i></div
+        <el-col :span="1" @click.native="isLogout">
+          <div style="margin-left: -30px; margin-top: 5px;">
+            <el-popover
+              placement="top-start"
+              title=""
+              width="80"
+              trigger="hover"
+              content="点击退出登录">
+              <el-button slot="reference">ID:{{ currentUserId }}</el-button>
+            </el-popover>
+          </div
         ></el-col>
       </el-row>
     </div>
     <div style="margin-top: 20px">
       <el-row :gutter="12">
-        <el-col :span="8">
+        <el-col :span="6">
           <el-card
             shadow="always"
             v-if="cardAttributes === '1'"
             @click.native="greet1()"
             align="center"
           >
-            编辑用户信息
+            用户信息
           </el-card>
           <el-card
             shadow="hover"
@@ -30,10 +38,10 @@
             @click.native="greet1()"
             align="center"
           >
-            编辑用户信息
+            用户信息
           </el-card>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="6">
           <el-card
             shadow="always"
             v-if="cardAttributes === '2'"
@@ -51,7 +59,7 @@
             主题管理
           </el-card>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="6">
           <el-card
             shadow="always"
             v-if="cardAttributes === '3'"
@@ -69,84 +77,117 @@
             随机主题
           </el-card>
         </el-col>
+        <el-col :span="6">
+            <el-card
+                shadow="always"
+                v-if="cardAttributes === '4'"
+                @click.native="greet4()"
+                align="center"
+            >
+                实时聊天
+            </el-card>
+            <el-card
+                shadow="hover"
+                v-else
+                @click.native="greet4()"
+                align="center"
+            >
+                实时聊天
+            </el-card>
+          </el-col>
       </el-row>
     </div>
-    <div style="margin-top: 50px; width: 60%; margin-left: 280px;">
+    <div style="margin-top: 10px;">
       <el-row>
-        <el-col :span="12"
-          ><div class="grid-content bg-purple-light">
-            <div style="margin: 20px"></div>
-            <el-form
-              :label-position="labelPosition"
-              label-width="80px"
-              :model="formLabelAlign"
-            >
-              <el-form-item label="姓名">
-                <el-input v-model="formLabelAlign.username"></el-input>
-              </el-form-item>
-              <el-form-item label="地址">
-                <el-input v-model="formLabelAlign.address"></el-input>
-              </el-form-item>
-              <el-form-item label="手机号">
-                <el-input v-model="formLabelAlign.phone"></el-input>
-              </el-form-item>
-              <el-form-item label="身份证">
-                <el-input v-model="formLabelAlign.code"></el-input>
-              </el-form-item>
-              <el-form-item label="年龄">
-                <el-input v-model="formLabelAlign.age"></el-input>
-              </el-form-item>
-            </el-form></div
-        ></el-col>
-        <el-col :span="12"
-          ><div class="grid-content bg-purple-light">
-            <div style="margin: 20px"></div>
-            <el-form
-              :label-position="labelPosition"
-              label-width="80px"
-              :model="formLabelAlign"
-            >
-              <el-form-item label="性别">
-                <el-input v-model="formLabelAlign.sex"></el-input>
-              </el-form-item>
-              <el-form-item label="身高">
-                <el-input v-model="formLabelAlign.height"></el-input>
-              </el-form-item>
-              <el-form-item label="体重">
-                <el-input v-model="formLabelAlign.weight"></el-input>
-              </el-form-item>
-              <el-form-item label="爱好">
-                <el-input v-model="formLabelAlign.likes"></el-input>
-              </el-form-item>
-              <el-form-item label="学历">
-                <el-select v-model="formLabelAlign.degree" placeholder="请选择学历" style="width: 270px;">
-                  <el-option label="小学" value="1"></el-option>
-                  <el-option label="初中" value="2"></el-option>
-                  <el-option label="高中" value="3"></el-option>
-                  <el-option label="大学" value="4"></el-option>
-                  <el-option label="研究生" value="5"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-form></div
-        ></el-col>
-        <el-col :span="24" style="margin-top: 20px">
-          <div class="grid-content bg-purple-light divCenter">
-            <div style="margin: 20px"></div>
-            <el-button type="info" plain @click.native="saveUserInfo()">保存</el-button>
-          </div></el-col
-        >
+        <el-calendar>
+          <!-- 这里使用的是 2.5 slot 语法，对于新项目请使用 2.6 slot 语法-->
+          <template
+            slot="dateCell"
+            slot-scope="{data}">
+            <p :class="isSignDay(data.day.split('-')) ? 'is-selected' : ''" align="center">
+              {{ data.day.split('-')[2] }} {{ isSignDay(data.day.split('-')) ? '✔️' : ''}}
+            </p>
+          </template>
+        </el-calendar>      
+      </el-row>
+      <el-row>
+        <div style="margin-top: 10px; margin-left: 90px;">
+          <el-col :span="10"
+            ><div class="grid-content bg-purple-light" style="margin-left: 100px;">
+              <el-form
+                :label-position="labelPosition"
+                label-width="80px"
+                :model="formLabelAlign"
+              >
+                <el-form-item label="姓名">
+                  <el-input v-model="formLabelAlign.username"></el-input>
+                </el-form-item>
+                <el-form-item label="地址">
+                  <el-input v-model="formLabelAlign.address"></el-input>
+                </el-form-item>
+                <el-form-item label="手机号">
+                  <el-input v-model="formLabelAlign.phone"></el-input>
+                </el-form-item>
+                <el-form-item label="身份证">
+                  <el-input v-model="formLabelAlign.code"></el-input>
+                </el-form-item>
+                <el-form-item label="年龄">
+                  <el-input v-model="formLabelAlign.age"></el-input>
+                </el-form-item>
+              </el-form>
+              </div
+          ></el-col>
+          <el-col :span="10"
+            ><div class="grid-content bg-purple-light" style="margin-left: 100px;">
+              <el-form
+                :label-position="labelPosition"
+                label-width="80px"
+                :model="formLabelAlign"
+              >
+                <el-form-item label="性别">
+                  <el-input v-model="formLabelAlign.sex"></el-input>
+                </el-form-item>
+                <el-form-item label="身高">
+                  <el-input v-model="formLabelAlign.height"></el-input>
+                </el-form-item>
+                <el-form-item label="体重">
+                  <el-input v-model="formLabelAlign.weight"></el-input>
+                </el-form-item>
+                <el-form-item label="爱好">
+                  <el-input v-model="formLabelAlign.likes"></el-input>
+                </el-form-item>
+                <el-form-item label="学历">
+                  <el-select
+                    v-model="formLabelAlign.degree"
+                    placeholder="请选择学历"
+                  >
+                    <el-option label="小学" value="1"></el-option>
+                    <el-option label="初中" value="2"></el-option>
+                    <el-option label="高中" value="3"></el-option>
+                    <el-option label="大学" value="4"></el-option>
+                    <el-option label="研究生" value="5"></el-option>
+                  </el-select>
+                  <el-button type="info" plain @click.native="saveUserInfo()" style="margin-left: 5px;">保存</el-button>
+                </el-form-item>
+              </el-form>
+              </div
+          ></el-col>
+        </div>
       </el-row>
     </div>
+    <div style="margin-top: 30px"></div>
   </div>
 </template>
   
-  <script>
+<script>
 export default {
   data() {
     return {
       cardAttributes: "1",
       signCount: "10",
       labelPosition: "right",
+      signDay: "",
+      currentUserId: "",
       formLabelAlign: {
         username: "",
         address: "",
@@ -183,74 +224,88 @@ export default {
         this.$router.push("/randomtopic");
       }
     },
+    greet4() {
+      if (this.cardAttributes != "4") {
+        this.$router.push("/messagetalk");
+      }
+    },
+    isSignDay(day) {
+      let now = new Date();
+      let month = now.getMonth() + 1;
+      if (day[1] == month && day[2] <= this.signDay.length) {
+        if (this.signDay[day[2] - 1] == "1") {
+          return true;
+        }
+      }
+      return false;
+    },
     queryUserInfo() {
       var userId = localStorage.getItem("userId");
       var that = this;
       this.$http
-      .post("local/users/queryDetailById/" + userId, {})
-      .then(function (response) {
-        var res = response.data;
-        if (res.code == 20000) {
-          if (res.data) {
-            that.formLabelAlign.username=res.data.name;
-            that.formLabelAlign.address=res.data.address;
-            that.formLabelAlign.phone=res.data.phone;
-            that.formLabelAlign.code=res.data.code;
-            that.formLabelAlign.age=res.data.age;
-            that.formLabelAlign.sex=res.data.sex;
-            that.formLabelAlign.height=res.data.height;
-            that.formLabelAlign.weight=res.data.weight;
-            that.formLabelAlign.likes=res.data.likes;
-            that.formLabelAlign.degree=res.data.degree;          
+        .post("local/users/queryDetailById/" + userId, {})
+        .then(function (response) {
+          var res = response.data;
+          if (res.code == 20000) {
+            if (res.data) {
+              that.formLabelAlign.username = res.data.name;
+              that.formLabelAlign.address = res.data.address;
+              that.formLabelAlign.phone = res.data.phone;
+              that.formLabelAlign.code = res.data.code;
+              that.formLabelAlign.age = res.data.age;
+              that.formLabelAlign.sex = res.data.sex;
+              that.formLabelAlign.height = res.data.height;
+              that.formLabelAlign.weight = res.data.weight;
+              that.formLabelAlign.likes = res.data.likes;
+              that.formLabelAlign.degree = res.data.degree;
+            }
+          } else {
+            that.$message({
+              message: res.msg,
+              type: "error",
+            });
           }
-        } else {
-          that.$message({
-            message: res.msg,
-            type: 'error'
-          });
-        }
-      })
-      .catch(function (error) {
-        console.log('error: ' + error);
-      });
+        })
+        .catch(function (error) {
+          console.log("error: " + error);
+        });
     },
     saveUserInfo() {
       var that = this;
       this.$http
-            .post("local/users/saveUserInfo", 
-            {
-              "userId": localStorage.getItem("userId"),
-              "name": that.formLabelAlign.username,
-              "address": that.formLabelAlign.address,
-              "phone": that.formLabelAlign.phone,
-              "code": that.formLabelAlign.code,
-              "age": parseInt(that.formLabelAlign.age),
-              "sex": that.formLabelAlign.sex,
-              "height": that.formLabelAlign.height,
-              "weight": that.formLabelAlign.weight,
-              "likes": that.formLabelAlign.likes,
-              "degree": that.formLabelAlign.degree
-            })
-            .then(function (response) {
-              var res = response.data;
-              if (res.code == 20000) {
-                that.$message({
-                  message: '保存成功',
-                  type: 'success'
-                });
-              } else {
-                that.$message({
-                  message: res.msg,
-                  type: 'error'
-                });
-              }
-            })
-            .catch(function (error) {
-              that.$message({
-                message: error,
-                type: 'error'
-              });
+        .post("local/users/saveUserInfo", {
+          userId: localStorage.getItem("userId"),
+          name: that.formLabelAlign.username,
+          address: that.formLabelAlign.address,
+          phone: that.formLabelAlign.phone,
+          code: that.formLabelAlign.code,
+          age: parseInt(that.formLabelAlign.age),
+          sex: that.formLabelAlign.sex,
+          height: that.formLabelAlign.height,
+          weight: that.formLabelAlign.weight,
+          likes: that.formLabelAlign.likes,
+          degree: that.formLabelAlign.degree,
+        })
+        .then(function (response) {
+          var res = response.data;
+          if (res.code == 20000) {
+            that.$message({
+              message: "保存成功",
+              type: "success",
             });
+          } else {
+            that.$message({
+              message: res.msg,
+              type: "error",
+            });
+          }
+        })
+        .catch(function (error) {
+          that.$message({
+            message: error,
+            type: "error",
+          });
+        });
     },
     isLogout() {
       this.$confirm("此操作将退出系统, 是否继续?", "提示", {
@@ -264,6 +319,8 @@ export default {
               var res = response.data;
               if (res.code == 20000) {
                 localStorage.removeItem("token");
+                localStorage.removeItem("userId");
+                localStorage.removeItem("topic");
                 that.$router.push("/login");
                 that.$message({
                   message: "退出成功",
@@ -287,9 +344,44 @@ export default {
           console.log(err);
         });
     },
+    getSingCount() {
+      let that = this;
+      this.$http
+        .get("local/users/sign/count", {
+          params: {
+            userId: localStorage.getItem("userId"),
+          },
+        })
+        .then(function (response) {
+          var res = response.data;
+          if (res.code == 20000) {
+            var signDate = res.data.split("-");
+            var signDate_0 = signDate[0];
+            var signDate_1 = signDate[1];
+            var len = parseInt(signDate_1) - signDate_0.length;
+            for (var i = 0; i < len; i++) {
+              signDate_0 = "0" + signDate_0;
+            }
+            that.signDay = signDate_0;
+          } else {
+            that.$message({
+              message: res.msg,
+              type: "error",
+            });
+          }
+        })
+        .catch(function (error) {
+          that.$message({
+            message: error,
+            type: "error",
+          });
+        });
+    },
   },
   mounted() {
     this.queryUserInfo();
+    this.getSingCount();
+    this.currentUserId = localStorage.getItem("userId");
   },
 };
 </script>
@@ -334,4 +426,8 @@ export default {
   padding: 10px 0;
   background-color: #f9fafc;
 }
+.is-selected {
+  color: #1989FA;
+}
+
 </style>

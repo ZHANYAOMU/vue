@@ -4,27 +4,33 @@
       <el-row>
         <el-col :span="23"
           ><div class="grid-content bg-purple-dark divCenter">
-            <p style="font-size: 20px; margin-left: 70px">
-              Topic Management System
-            </p>
+            <p style="font-size: 20px; margin-left: 70px">😝🙊👿🔥🌵🍄🍉😚😁😢🐨🐵🐒🎉📹🗼🗻🗾🏡♍️❗️🎀💚💞👘💘🐱🐦🐥🐑🐝🌎🌍🌘🌏🌎🌳🌒🏆🍔🏄🍖🍣🍎🍉🍑🌽</p>
           </div></el-col
         >
-        <el-col :span="1" @click.native="isLogout"
-          ><div class="grid-content bg-purple-light divCenter">
-            <i class="el-icon-user-solid" style="font-size: 30px"></i></div
+        <el-col :span="1" @click.native="isLogout">
+          <div style="margin-left: -30px; margin-top: 5px;">
+            <el-popover
+              placement="top-start"
+              title=""
+              width="80"
+              trigger="hover"
+              content="点击退出登录">
+              <el-button slot="reference">ID:{{ currentUserId }}</el-button>
+            </el-popover>
+          </div
         ></el-col>
       </el-row>
     </div>
     <div style="margin-top: 20px">
       <el-row :gutter="12">
-        <el-col :span="8">
+        <el-col :span="6">
           <el-card
             shadow="always"
             v-if="cardAttributes === '1'"
             @click.native="greet1()"
             align="center"
           >
-            编辑用户信息
+            用户信息
           </el-card>
           <el-card
             shadow="hover"
@@ -32,10 +38,10 @@
             @click.native="greet1()"
             align="center"
           >
-            编辑用户信息
+            用户信息
           </el-card>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="6">
           <el-card
             shadow="always"
             v-if="cardAttributes === '2'"
@@ -53,7 +59,7 @@
             主题管理
           </el-card>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="6">
           <el-card
             shadow="always"
             v-if="cardAttributes === '3'"
@@ -71,16 +77,56 @@
             随机主题
           </el-card>
         </el-col>
+        <el-col :span="6">
+            <el-card
+                shadow="always"
+                v-if="cardAttributes === '4'"
+                @click.native="greet4()"
+                align="center"
+            >
+                实时聊天
+            </el-card>
+            <el-card
+                shadow="hover"
+                v-else
+                @click.native="greet4()"
+                align="center"
+            >
+                实时聊天
+            </el-card>
+          </el-col>
       </el-row>
     </div>
-    <div style="margin-top: 25px; display: flex; align-items: center; justify-content: center;">
+    <div
+      style="
+        margin-top: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+    >
       <el-form :inline="true" class="demo-form-inline">
         <el-form-item>
           <el-input v-model="mainTopic" placeholder="主题搜索"></el-input>
         </el-form-item>
         <el-form-item>
+          <el-select v-model="mainWeight" placeholder="请选择权重值">
+            <el-option label="" value=""></el-option>
+            <el-option label="1" value="1"></el-option>
+            <el-option label="2" value="2"></el-option>
+            <el-option label="3" value="3"></el-option>
+            <el-option label="4" value="4"></el-option>
+            <el-option label="5" value="5"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
           <el-button type="primary" plain @click="searchTopic">查询</el-button>
           <el-button type="primary" plain @click="showAddDialog">新增</el-button>
+          <el-button
+            plain
+            @click="signClick">
+            点击签到
+          </el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -155,9 +201,11 @@
         </el-form-item>
         <el-form-item label="主题描述" :label-width="formLabelWidth">
           <el-input
-            v-model="topicForm.description"
-            autocomplete="off"
-          ></el-input>
+            type="textarea"
+            :rows="2"
+            placeholder="请输入内容"
+            v-model="topicForm.description">
+          </el-input>
         </el-form-item>
         <el-form-item label="权重" :label-width="formLabelWidth">
           <el-select v-model="topicForm.weight" placeholder="请选择权重值">
@@ -182,9 +230,11 @@
         </el-form-item>
         <el-form-item label="主题描述" :label-width="formLabelWidth">
           <el-input
-            v-model="topicForm.description"
-            autocomplete="off"
-          ></el-input>
+            type="textarea"
+            :rows="2"
+            placeholder="请输入内容"
+            v-model="topicForm.description">
+          </el-input>
         </el-form-item>
         <el-form-item label="权重" :label-width="formLabelWidth">
           <el-select v-model="topicForm.weight" placeholder="请选择权重值">
@@ -216,6 +266,8 @@ export default {
       tableData: [],
       search: "",
       mainTopic: "",
+      mainWeight: "",
+      currentUserId: "",
 
       dialogFormVisible: false,
       dialogAddTopicVisible: false,
@@ -232,6 +284,32 @@ export default {
     searchTopic() {
       this.pageCount = 1;
       this.queryTopic(this.pageCount, this.pageSize);
+    },
+    signClick() {
+      let that = this;
+      this.$http
+        .post("local/users/sign", {
+          id: localStorage.getItem("userId")
+        })
+        .then(function (response) {
+          var res = response.data;
+          if (res.code == 20000) {
+            that.$notify.success({
+            title: '',
+            message: '签到成功',
+            showClose: false,
+            position: 'top-left'
+          });
+          } else {
+            that.$message({
+              message: res.msg,
+              type: "error",
+            });
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
     },
     handleEdit(index, row) {
       this.dialogFormVisible = true;
@@ -369,14 +447,21 @@ export default {
         this.$router.push("/randomtopic");
       }
     },
+    greet4() {
+      if (this.cardAttributes != "4") {
+        this.$router.push("/messagetalk");
+      }
+    },
     queryTopic(pageCount, pageSize) {
       var userId = localStorage.getItem("userId");
       var topic = this.mainTopic;
+      var mainWeight = this.mainWeight;
       let that = this;
       this.$http
         .post("local/users/queryTopic", {
           userId: userId,
           topic: topic,
+          weight: mainWeight,
           pageCount: pageCount,
           pageSize: pageSize,
         })
@@ -408,6 +493,8 @@ export default {
               var res = response.data;
               if (res.code == 20000) {
                 localStorage.removeItem("token");
+                localStorage.removeItem("userId");
+                localStorage.removeItem("topic");
                 that.$router.push("/login");
                 that.$message({
                   message: "已退出",
@@ -434,6 +521,7 @@ export default {
   },
   mounted() {
     this.queryTopic(this.pageCount, this.pageSize);
+    this.currentUserId = localStorage.getItem("userId");
   },
 };
 </script>

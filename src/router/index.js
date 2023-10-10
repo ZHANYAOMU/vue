@@ -5,6 +5,7 @@ import LoginView from '../views/element/LoginView.vue'
 import ElementView from '../views/element/ElementView.vue'
 import UserInfoView from '../views/element/UserInfoView.vue'
 import RandomTopicView from '../views/element/RandomTopicView.vue'
+import MessageTalkView from '../views/element/MessageTalkView.vue'
 
 Vue.use(VueRouter)
 
@@ -45,6 +46,11 @@ const routes = [
     path: '/randomtopic',
     name: 'randomtopic',
     component: RandomTopicView
+  },
+  {
+    path: '/messagetalk',
+    name: 'messagetalk',
+    component: MessageTalkView
   },
 ]
 

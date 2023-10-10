@@ -85,9 +85,9 @@ export default {
       ).then(function (response) {
         var res = response.data;
         if (res.code == 20000) {
-          that.$router.push('/element');
+          that.$router.push('/login');
           that.$message({
-            message: '注册成功',
+            message: '注册成功，请重新登录',
             type: 'success'
           });
         } else {

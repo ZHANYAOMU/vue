@@ -4,25 +4,33 @@
       <el-row>
         <el-col :span="23"
           ><div class="grid-content bg-purple-dark divCenter">
-            <p style="font-size: 20px; margin-left: 70px;">Topic Management System</p>
+            <p style="font-size: 20px; margin-left: 70px;">😝🙊👿🔥🌵🍄🍉😚😁😢🐨🐵🐒🎉📹🗼🗻🗾🏡♍️❗️🎀💚💞👘💘🐱🐦🐥🐑🐝🌎🌍🌘🌏🌎🌳🌒🏆🍔🏄🍖🍣🍎🍉🍑🌽</p>
           </div></el-col
         >
-        <el-col :span="1" @click.native="isLogout"
-          ><div class="grid-content bg-purple-light divCenter">
-            <i class="el-icon-user-solid" style="font-size: 30px"></i></div
+        <el-col :span="1" @click.native="isLogout">
+          <div style="margin-left: -30px; margin-top: 5px;">
+            <el-popover
+              placement="top-start"
+              title=""
+              width="80"
+              trigger="hover"
+              content="点击退出登录">
+              <el-button slot="reference">ID:{{ currentUserId }}</el-button>
+            </el-popover>
+          </div
         ></el-col>
       </el-row>
     </div>
     <div style="margin-top: 20px">
       <el-row :gutter="12">
-        <el-col :span="8">
+        <el-col :span="6">
           <el-card
             shadow="always"
             v-if="cardAttributes === '1'"
             @click.native="greet1()"
             align="center"
           >
-            编辑用户信息
+            用户信息
           </el-card>
           <el-card
             shadow="hover"
@@ -30,10 +38,10 @@
             @click.native="greet1()"
             align="center"
           >
-            编辑用户信息
+            用户信息
           </el-card>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="6">
           <el-card
             shadow="always"
             v-if="cardAttributes === '2'"
@@ -51,7 +59,7 @@
             主题管理
           </el-card>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="6">
           <el-card
             shadow="always"
             v-if="cardAttributes === '3'"
@@ -69,17 +77,35 @@
             随机主题
           </el-card>
         </el-col>
+        <el-col :span="6">
+          <el-card
+            shadow="always"
+            v-if="cardAttributes === '4'"
+            @click.native="greet4()"
+            align="center"
+          >
+            实时聊天
+          </el-card>
+          <el-card
+            shadow="hover"
+            v-else
+            @click.native="greet4()"
+            align="center"
+          >
+            实时聊天
+          </el-card>
+        </el-col>
       </el-row>
     </div>
     <div style="margin-top: 50px; display: flex; justify-content: center; align-items: center;">
-      <el-col :span="15">
-        <el-card shadow="always" align="center" style="height: 300px">
+      <el-card shadow="always" align="center" style="height: 450px; width: 80%">
           <h1>{{ message }}</h1>
         </el-card>
-      </el-col>
     </div>
-    <div style="margin-top: 50px; display: flex; justify-content: center; align-items: center;">
+    <div style="margin-top: 30px; display: flex; justify-content: center; align-items: center;">
+      <el-button type="primary" @click="sendTopicToPerson">发送主题给陌生人</el-button>
       <el-button type="primary" @click="getRandomTopic">获取主题</el-button>
+      <el-button type="primary" @click="getTopicFromPerson">接收陌生人的主题</el-button>
     </div>
   </div>
 </template>
@@ -90,8 +116,8 @@ export default {
     return {
       cardAttributes: "3",
       signCount: "10",
-      message: "点击按钮获取一个主题",
-      
+      message: "",
+      currentUserId: ""
     };
   },
   methods: {
@@ -108,6 +134,11 @@ export default {
     greet3() {
       if (this.cardAttributes != "3") {
         this.$router.push("/randomtopic");
+      }
+    },
+    greet4() {
+      if (this.cardAttributes != "4") {
+        this.$router.push("/messagetalk");
       }
     },
     getRandomTopic() {
@@ -139,6 +170,64 @@ export default {
         console.log('error: ' + error);
       });
     },
+    sendTopicToPerson() {
+      let that = this;
+      this.$http
+        .post("local/users/pushTopic", {
+          userId: localStorage.getItem("userId"),
+          topic: localStorage.getItem("topic")
+        })
+        .then(function (response) {
+          var res = response.data;
+          if (res.code == 20000) {
+            that.$message({
+              message: res.msg,
+              type: "success",
+            });
+          } else {
+            that.$message({
+              message: res.msg,
+              type: "error",
+            });
+          }
+        })
+    },
+    getTopicFromPerson() {
+      let that = this;
+      this.$http
+        .post("local/users/popTopic", {
+          userId: localStorage.getItem("userId"),
+          topic: localStorage.getItem("topic")
+        })
+        .then(function (response) {
+          var res = response.data;
+          if (res.code == 20000) {
+            that.$message({
+              message: res.msg,
+              type: "success",
+            });
+            var userId = "未知用户";
+            var msg = "";
+            if (res.data.split("-").length > 1) {
+               userId = res.data.split("-")[0];
+               msg = res.data.split("-")[1];
+            }
+            that.$notify({
+              title: "用户ID：" + userId,
+              message: msg,
+              position: 'top-right',
+              offset: 50,
+              type: 'success',
+              duration: 0
+            });
+          } else {
+            that.$message({
+              message: res.msg,
+              type: "error",
+            });
+          }
+        })
+    },
     isLogout() {
       this.$confirm("此操作将退出系统, 是否继续?", "提示", {
         type: "warning",
@@ -150,6 +239,8 @@ export default {
               var res = response.data;
               if (res.code == 20000) {
                 localStorage.removeItem("token");
+                localStorage.removeItem("userId");
+                localStorage.removeItem("topic");
                 that.$router.push("/login");
                 that.$message({
                   message: "退出成功",
@@ -175,7 +266,8 @@ export default {
     },
   },
   mounted() {
-    if (localStorage.getItem("topic").split("-")[0] == localStorage.getItem("userId")) {
+    this.currentUserId = localStorage.getItem("userId");
+    if (localStorage.getItem("topic") != null && localStorage.getItem("topic").split("-")[0] == localStorage.getItem("userId")) {
       this.message = localStorage.getItem("topic").split("-")[1];
     }
   }
